@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            justify-content: center;
+            height: 100vh;
+            align-items: center;
+            font-family: sans-serif;
+            color: white;
+        }
+
+        .mainbox {
+            width: 350px;
+            /* border: 2px solid red; */
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .box {
+            height: 100px;
+            width: 100px;
+            border: 2px solid rgb(203, 165, 30);
+            transition: 200ms;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 5rem;
+            color: aliceblue;
+        }
+
+        .box:hover {
+            transform: scale(0.8);
+        }
+
+        .danger {
+
+            background-color: red;
+        }
+
+        .success {
+            background-color: green;
+        }
+
+        .alert {
+            background-color: rgb(242, 187, 8);
+            border-radius: 20px;
+            color: white;
+            padding: 1rem 2rem;
+        }
+
+        .d-none {
+            display: none;
+        }
+
+        .playerBox {
+            display: flex;
+            gap: 1rem;
+            /* flex-direction: column; */
+            /* border: 2px yellow solid; */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 
+
+        step 1 create 9 boxes
+        step 2 selection logic
+        step 3 prevent  overwrite
+        step 4 (winner + draw logic)
+        step 5 print score
+        step 6 Reset game logics
+     -->
+
+    <div id="output">
+    </div>
+
+    <div class="card" id="playerCard">
+        <input id="player1" type="text" placeholder="Enter Player1 Name">
+        <input id="player2" type="text" placeholder="Enter Player2 Names">
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="gameBox" class="d-none">
+
+
+        <div class="playerBox">
+            <h1><span id="p1"></span> : <span id="p1WinCount">0</span></h1>
+            <h1><span id="p2"></span> : <span id="p2WinCount">0</span></h1>
+            <br>
+            <h1>Draw : <span id="drawCount">0</span></h1>
+            <h1>Total :<span id="total">0</span> </h1>
+        </div>
+
+
+
+        <div class="mainbox">
+            <div class="box" id="b1" onclick="handleSelect('b1')"></div>
+            <div class="box" id="b2" onclick="handleSelect('b2')"></div>
+            <div class="box" id="b3" onclick="handleSelect('b3')"></div>
+            <div class="box" id="b4" onclick="handleSelect('b4')"></div>
+            <div class="box" id="b5" onclick="handleSelect('b5')"></div>
+            <div class="box" id="b6" onclick="handleSelect('b6')"></div>
+            <div class="box" id="b7" onclick="handleSelect('b7')"></div>
+            <div class="box" id="b8" onclick="handleSelect('b8')"></div>
+            <div class="box" id="b9" onclick="handleSelect('b9')"></div>
+
+        </div>
+    </div>
+
+    <!-- java script  -->
+
+    <script>
+
+        let chance = true
+
+        let matchTotalCount = 0
+        let totalDrowMatch = 0
+
+        let player1WinCount = 0
+        let player2WinCount = 0
+
+
+
+        function startGame() {
+            let player1 = document.getElementById("player1").value
+            let player2 = document.getElementById("player2").value
+
+            document.getElementById("p1").innerHTML = player1
+            document.getElementById("p2").innerHTML = player2
+
+            document.getElementById("p1WinCount").innerHTML = player1WinCount
+            document.getElementById("p2WinCount").innerHTML = player2WinCount
+
+
+            document.getElementById("gameBox").classList.remove("d-none")
+            document.getElementById("playerCard").classList.add("d-none")
+        }
+
+        function handleSelect(arg) {
+
+            let hasDanger = document.getElementById(arg).classList.contains("danger")
+            let hasSuccess = document.getElementById(arg).classList.contains("success")
+
+
+            if (hasSuccess === false && hasDanger === false) {
+
+
+                if (chance) {
+                    document.getElementById(arg).classList.add("danger")
+                    document.getElementById(arg).innerHTML = "X"
+                    chance = false
+                } else {
+                    document.getElementById(arg).classList.add("success")
+                    document.getElementById(arg).innerHTML = "O"
+                    chance = true
+                }
+
+                checkdraw()
+            }
+        }
+
+        // sir ka solution 
+
+
+        function winner() {
+            let rwc1 = checkwinner("b1", "b2", "b3", "danger")
+            let rwc2 = checkwinner("b4", "b5", "b6", "danger")
+            let rwc3 = checkwinner("b7", "b8", "b9", "danger")
+            let rwc4 = checkwinner("b7", "b4", "b1", "danger")
+            let rwc5 = checkwinner("b3", "b6", "b9", "danger")
+            let rwc6 = checkwinner("b2", "b5", "b8", "danger")
+            let rwc7 = checkwinner("b1", "b5", "b9", "danger")
+            let rwc8 = checkwinner("b3", "b5", "b7", "danger")
+
+            if (rwc1 || rwc2 || rwc3 || rwc4 || rwc5 || rwc6 || rwc7 || rwc8) {
+                document.getElementById("output").innerHTML = `
+               <div class="alert">
+                    <h1>Red Is Winner</h1>
+                </div>
+               `
+
+                player1WinCount++
+                document.getElementById("p1WinCount").innerHTML = player1WinCount
+                matchTotalCount++
+                document.getElementById("totalCount").innerHTML = matchTotalCount
+                return true
+
+            }
+            let bwc1 = checkwinner("b1", "b2", "b3", "success")
+            let bwc2 = checkwinner("b4", "b5", "b6", "success")
+            let bwc3 = checkwinner("b7", "b8", "b9", "success")
+            let bwc4 = checkwinner("b7", "b4", "b1", "success")
+            let bwc5 = checkwinner("b3", "b6", "b9", "success")
+            let bwc6 = checkwinner("b2", "b5", "b8", "success")
+            let bwc7 = checkwinner("b1", "b5", "b9", "success")
+            let bwc8 = checkwinner("b3", "b5", "b7", "success")
+
+            if (bwc1 || bwc2 || bwc3 || bwc4 || bwc5 || bwc6 || bwc7 || bwc8) {
+                document.getElementById("output").innerHTML = `
+               <div class="alert">
+                    <h1>Green Is Winner</h1>
+                </div>
+               `
+                player2WinCount++
+                document.getElementById("p2WinCount").innerHTML = player2WinCount
+                matchTotalCount++
+                document.getElementById("totalCount").innerHTML = matchTotalCount
+                return true
+            }
+
+        }
+
+        function checkwinner(id1, id2, id3, color) {
+
+            let box1 = document.getElementById(id1).classList.contains(color)
+            let box2 = document.getElementById(id2).classList.contains(color)
+            let box3 = document.getElementById(id3).classList.contains(color)
+            if (box1 && box2 && box3) {
+                resetGame()
+                return true
+            } else {
+                return false
+            }
+        }
+
+        // reset game 
+
+        function resetGame() {
+            for (let i = 1; i <= 9; i++) {
+                document.getElementById(`b${i}`).classList.remove("danger")
+                document.getElementById(`b${i}`).classList.remove("success")
+                document.getElementById(`b${i}`).innerHTML = ""
+            }
+            chance = true
+        }
+
+        function checkdraw(params) {
+            let arr = []
+            for (let i = 1; i <= 9; i++) {
+
+                let x = document.getElementById(`b${i}`).classList.contains("danger")
+                let y = document.getElementById(`b${i}`).classList.contains("success")
+                if (x || y) {
+                    arr.push("skillhub")
+                }
+                if (!winner()) {
+                    if (arr.length === 9) {
+                        console.log("match draw");
+                        drawCount++
+                        totalCount++
+
+                    }
+                }
+
+            }
+        }
+        // homework
+
+
+
+
+
+        // another solution
+
+        // function winner() {
+        //     let b1HasRed = document.querySelector("#b1").classList.contains("danger")
+        //     let b2HasRed = document.querySelector("#b2").classList.contains("danger")
+        //     let b3HasRed = document.querySelector("#b3").classList.contains("danger")
+        //     if (b1HasRed && b2HasRed && b3HasRed) {
+
+        //         console.log("RED IS WINNER");
+        //     }
+        //     let b4HasRed = document.querySelector("#b4").classList.contains("danger")
+        //     let b5HasRed = document.querySelector("#b5").classList.contains("danger")
+        //     let b6HasRed = document.querySelector("#b6").classList.contains("danger")
+        //     if (b4HasRed && b5HasRed && b6HasRed) {
+        //         console.log("RED IS WINNER");
+        //     }
+        //     let b7HasRed = document.querySelector("#b7").classList.contains("danger")
+        //     let b8HasRed = document.querySelector("#b8").classList.contains("danger")
+        //     let b9HasRed = document.querySelector("#b9").classList.contains("danger")
+
+        //     if (b1HasRed && b5HasRed && b9HasRed) {
+        //         console.log("RED IS WINNER");
+        //     }
+        //     if (b3HasRed && b5HasRed && b7HasRed) {
+        //         console.log("RED IS WINNER");
+        //     }
+        //     if (b1HasRed && b4HasRed && b7HasRed) {
+        //         console.log("RED IS WINNER");
+        //     }
+        //     if (b2HasRed && b5HasRed && b8HasRed) {
+        //         console.log("RED IS WINNER");
+        //     }
+        //     if (b3HasRed && b6HasRed && b9HasRed) {
+        //         console.log("RED IS WINNER");
+        //     }
+        //     if (b7HasRed && b8HasRed && b9HasRed) {
+        //         console.log("RED IS WINNER");
+        //     }
+
+        //     // Green is winner
+
+        //     let b1HasGreen = document.querySelector("#b1").classList.contains("success")
+        //     let b2HasGreen = document.querySelector("#b2").classList.contains("success")
+        //     let b3HasGreen = document.querySelector("#b3").classList.contains("success")
+        //     if (b1HasGreen && b2HasGreen && b3HasGreen) {
+
+        //         console.log("Green IS WINNER");
+        //     }
+        //     let b4HasGreen = document.querySelector("#b4").classList.contains("success")
+        //     let b5HasGreen = document.querySelector("#b5").classList.contains("success")
+        //     let b6HasGreen = document.querySelector("#b6").classList.contains("success")
+        //     if (b4HasGreen && b5HasGreen && b6HasGreen) {
+        //         console.log("Green IS WINNER");
+        //     }
+        //     let b7HasGreen = document.querySelector("#b7").classList.contains("success")
+        //     let b8HasGreen = document.querySelector("#b8").classList.contains("success")
+        //     let b9HasGreen = document.querySelector("#b9").classList.contains("success")
+
+        //     if (b1HasGreen && b5HasGreen && b9HasGreen) {
+        //         console.log("Green IS WINNER");
+        //     }
+        //     if (b3HasGreen && b5HasGreen && b7HasGreen) {
+        //         console.log("Green IS WINNER");
+        //     }
+        //     if (b1HasGreen && b4HasGreen && b7HasGreen) {
+        //         console.log("Green IS WINNER");
+        //     }
+        //     if (b2HasGreen && b5HasGreen && b8HasRed) {
+        //         console.log("Green IS WINNER");
+        //     }
+        //     if (b3HasGreen && b6HasGreen && b9HasGreen) {
+        //         console.log("Green IS WINNER");
+        //     }
+        //     if (b7HasGreen && b8HasGreen && b9HasGreen) {
+        //         console.log("Green IS WINNER");
+        //     }
+
+        // }
+
+
+    </script>
+</body>
+
+</html>
